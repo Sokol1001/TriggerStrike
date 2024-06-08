@@ -9,12 +9,13 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody _rigidBody;
-    [SerializeField] private FixedJoystick _joystick;
+    [SerializeField] private FloatingJoystick _joystick;
     [SerializeField] private Transform headPoint;
     [SerializeField] private GameObject plantButton;
     [SerializeField] private TextMeshProUGUI redTeamWinsText;
     [SerializeField] private TextMeshProUGUI blueTeamWinsText;
     [SerializeField] private float _moveSpeed;
+    [SerializeField] private Animator anim;
 
     private GameObject c4;
     public float targetTime = 10.0f;
@@ -30,6 +31,8 @@ public class PlayerController : MonoBehaviour
     private bool canPlant = false;
     private bool planted = false;
     private bool hasTheBomb = false;
+    private bool shooting = false;
+    private bool walking = false;
 
     public float health;
     public Slider healthSlider;
@@ -84,7 +87,29 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        if(planted)
+        float threshold = 0.1f;
+        if (_rigidBody.velocity.magnitude < threshold * Time.deltaTime)
+        {
+            if (shooting)
+            {
+                anim.SetBool("IsShootwalking", false);
+                anim.SetBool("IsAiming", true);
+            }
+            anim.SetBool("IsRunning", false);
+            anim.SetBool("IsIdle", true);
+            anim.SetBool("IsShootwalking", false);
+        }
+        else
+        {
+            if (shooting)
+            {
+                anim.SetBool("IsShootwalking", true);
+            }
+            anim.SetBool("IsIdle", false);
+            anim.SetBool("IsRunning", true);
+        }
+
+        if (planted)
         targetTime -= Time.deltaTime;
 
         if (targetTime <= 0.0f && planted)
@@ -99,6 +124,8 @@ public class PlayerController : MonoBehaviour
         // Do something with the closest enemy ( target)
         if (closestEnemy != null)
         {
+            shooting = true;
+
             transform.LookAt(closestEnemy.transform);
         }
 
@@ -179,6 +206,7 @@ public class PlayerController : MonoBehaviour
     }
     private void JoystickMovement()
     {
+        walking = true;
         _rigidBody.velocity = new Vector3(_joystick.Horizontal * _moveSpeed, _rigidBody.velocity.y, _joystick.Vertical * _moveSpeed);
     }
     public void Shoot()
@@ -189,7 +217,6 @@ public class PlayerController : MonoBehaviour
             Destroy(projectile, 4f);
             // Get the player's forward direction
             Vector3 forwardDirection = transform.forward;
-
             // Optionally add force to the projectile in the forward direction
             projectile.GetComponent<Rigidbody>().AddForce(forwardDirection * projectileForce);
 

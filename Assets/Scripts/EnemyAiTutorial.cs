@@ -49,10 +49,23 @@ public class EnemyAiTutorial : MonoBehaviour
 
         return closestPlayer;
     }
+    public void DeactivateEnemy()
+    {
+        enabled = false;
+        agent.enabled = false;
+    }
     private void Update()
     {
-        if(playerInSightRange)
-        player = FindClosestPlayer().transform;
+        // Check for players and deactivate if none found
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, sightRange, whatIsPlayer);
+        if (hitColliders.Length == 0)
+        {
+            DeactivateEnemy();
+        }
+        else
+        {
+            player = FindClosestPlayer().transform;
+        }
         //Check for sight and attack range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
@@ -111,7 +124,7 @@ public class EnemyAiTutorial : MonoBehaviour
         {
             ///Attack code here
             Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 45f, ForceMode.Impulse);
+            rb.AddForce(transform.forward * 90f, ForceMode.Impulse);
             rb.AddForce(transform.up * 1f, ForceMode.Impulse);
             ///End of attack code
 

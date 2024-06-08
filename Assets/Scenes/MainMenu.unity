@@ -471,6 +471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 708495288}
   - component: {fileID: 708495287}
+  - component: {fileID: 708495289}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -555,6 +556,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &708495289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 708495286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &1343470237
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,14 +606,14 @@ RectTransform:
   m_GameObject: {fileID: 1343470237}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 6.7552214, y: 6.7552214, z: 6.7552214}
+  m_LocalScale: {x: 10.887148, y: 10.887148, z: 10.887148}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1713582941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -8.5, y: 151.7}
+  m_AnchoredPosition: {x: 0, y: 206.24}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1343470239
@@ -837,7 +861,7 @@ RectTransform:
   m_GameObject: {fileID: 1990142929}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1015816, y: 5.233492, z: 1.1015816}
+  m_LocalScale: {x: 1.4716028, y: 6.9914217, z: 1.4716028}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 327768582}
