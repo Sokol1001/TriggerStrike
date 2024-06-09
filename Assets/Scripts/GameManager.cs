@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     public GameObject charPanel;
     public GameObject smokeButton;
     public GameObject arrowButton;
+    public GameObject suppButton;
 
     public void SmokerChosen()
     {
@@ -18,5 +19,10 @@ public class GameManager : MonoBehaviour
     {
         charPanel.SetActive(false);
         arrowButton.SetActive(true);
+    }
+    public void SuppChosen()
+    {
+        charPanel.SetActive(false);
+        suppButton.SetActive(true);
     }
 }

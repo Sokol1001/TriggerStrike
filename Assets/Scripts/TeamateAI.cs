@@ -9,6 +9,7 @@ public class TeamateAI : MonoBehaviour
     public Transform closestEnemy;
 
     public LayerMask whatIsGround, whatIsEnemy;
+    public Animator animator; // Add animator reference
 
     public float health;
     public Slider healthSlider;
@@ -56,7 +57,10 @@ public class TeamateAI : MonoBehaviour
         //Check for sight and attack range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsEnemy);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsEnemy);
+        // Update animation state based on behavior
+        UpdateAnimationState();
 
+        if(health >= 0)
         if (!playerInSightRange && !playerInAttackRange) Patroling();
         if (playerInSightRange && !playerInAttackRange) ChaseEnemy();
         if (playerInAttackRange && playerInSightRange) AttackEnemy();
@@ -68,7 +72,13 @@ public class TeamateAI : MonoBehaviour
             TakeDamage(25);
         }
     }
-
+    private void UpdateAnimationState()
+    {
+        animator.SetBool("IsIdle", !playerInSightRange && !playerInAttackRange && !walkPointSet); // Not patrolling
+        animator.SetBool("IsRunning", playerInSightRange && !playerInAttackRange && health > 0); // Patrolling 
+        animator.SetBool("IsAiming", playerInAttackRange && playerInSightRange); // Attacking
+        animator.SetBool("IsDying", health <= 0); // Assuming health <= 0 triggers death animation
+    }
     private void Patroling()
     {
         if (!walkPointSet) SearchWalkPoint();
@@ -133,11 +143,14 @@ public class TeamateAI : MonoBehaviour
         health -= damage;
         healthSlider.value -= damage;
 
-        if (health <= 0) Invoke(nameof(DestroyTeamate), 0.5f);
+        if (health <= 0) Invoke(nameof(DestroyTeamate), 0.1f);
     }
     private void DestroyTeamate()
     {
-        Destroy(gameObject);
+        gameObject.GetComponent<CapsuleCollider>().height = 2.2f;
+        gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, 2.25f, 0);
+        agent.enabled = false;
+        gameObject.GetComponent<TeamateAI>().enabled = false;
     }
 
     private void OnDrawGizmosSelected()

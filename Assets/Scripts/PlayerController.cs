@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 using UnityEngine.UI;
 using TMPro;
 
@@ -21,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public float targetTime = 10.0f;
     public GameObject projectilePrefab;
     public Transform firePoint;
+    public int medAttempts = 2;
+    public bool readyToHeal = true;
+    public int healCooldown = 10;
 
     [SerializeField] private float sightRange = 10f;
     [SerializeField] private LayerMask whatIsEnemy;
@@ -33,6 +35,7 @@ public class PlayerController : MonoBehaviour
     private bool hasTheBomb = false;
     private bool shooting = false;
     private bool walking = false;
+    private bool planting = false;
 
     public float health;
     public Slider healthSlider;
@@ -67,6 +70,21 @@ public class PlayerController : MonoBehaviour
             canPlant = true;
         }
     }
+    public void medHeal()
+    {
+        if(readyToHeal && medAttempts > 0)
+        {
+            readyToHeal = false;
+            medAttempts--;
+            TakeDamage(-30);
+            // implement throwCooldown
+            Invoke(nameof(ResetHeal), healCooldown);
+        }
+    }
+    private void ResetHeal()
+    {
+        readyToHeal = true;
+    }
     private GameObject FindClosestEnemy()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, sightRange, whatIsEnemy);
@@ -87,27 +105,23 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        float threshold = 0.1f;
+        float threshold = 0.3f;
         if (_rigidBody.velocity.magnitude < threshold * Time.deltaTime)
         {
-            if (shooting)
-            {
-                anim.SetBool("IsShootwalking", false);
-                anim.SetBool("IsAiming", true);
-            }
-            anim.SetBool("IsRunning", false);
-            anim.SetBool("IsIdle", true);
-            anim.SetBool("IsShootwalking", false);
+            walking = false;
         }
         else
         {
-            if (shooting)
-            {
-                anim.SetBool("IsShootwalking", true);
-            }
-            anim.SetBool("IsIdle", false);
-            anim.SetBool("IsRunning", true);
+            walking = true;
         }
+
+        // Update animation states based on player actions and booleans
+        anim.SetBool("IsIdle", !walking && !shooting && !planting && health >= 0);
+        anim.SetBool("IsRunning", walking && !shooting && !planting && health >= 0);
+        anim.SetBool("IsAiming", !walking && shooting && !planting && health >= 0);
+        anim.SetBool("IsShootwalking", walking && shooting && !planting && health >= 0);
+        anim.SetBool("IsPlanting", planting && !walking);
+        anim.SetBool("IsDying", health <= 0); // Assuming health <= 0 triggers death animation
 
         if (planted)
         targetTime -= Time.deltaTime;
@@ -128,6 +142,8 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(closestEnemy.transform);
         }
+        else
+            shooting = false;
 
         JoystickMovement();
 
@@ -144,7 +160,11 @@ public class PlayerController : MonoBehaviour
         redTeamWinsText.enabled = true;
         planted = false;
     }
-    public void PlantBomb()
+    public void PB()
+    {
+        StartCoroutine(PlantBomb());
+    }
+    public IEnumerator PlantBomb()
     {
         // Check if player has the bomb
         if (canPlant)
@@ -165,7 +185,11 @@ public class PlayerController : MonoBehaviour
                     GameObject bomb = Instantiate(c4, plantingPosition, Quaternion.identity);
 
                     //Play planting animation/sound effect
-
+                    planting = true;
+                    _joystick.enabled = false;
+                    yield return new WaitForSeconds(5f);
+                    _joystick.enabled = true;
+                    planting = false;
                     // Remove bomb from player inventory
                     Destroy(c4);
 
@@ -197,12 +221,14 @@ public class PlayerController : MonoBehaviour
         if (health <= 0)
         {
             blueTeamWinsText.enabled = true;
-            Invoke(nameof(DestroyPlayer), 0.5f); 
+            Invoke(nameof(DestroyPlayer), 0.1f); 
         }
     }
     private void DestroyPlayer()
     {
-        Destroy(gameObject);
+        gameObject.GetComponent<CapsuleCollider>().height = 2.2f;
+        gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, 2.25f, 0);
+        gameObject.GetComponent<PlayerController>().enabled = false;
     }
     private void JoystickMovement()
     {
