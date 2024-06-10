@@ -157,6 +157,7 @@ public class EnemyAiTutorial : MonoBehaviour
     }
     private void DestroyEnemy()
     {
+        gameObject.layer = LayerMask.NameToLayer("Default");
         gameObject.GetComponent<CapsuleCollider>().height = 2.2f;
         gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, 2.25f, 0);
         agent.enabled = false;

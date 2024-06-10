@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI blueTeamWinsText;
     [SerializeField] private float _moveSpeed;
     [SerializeField] private Animator anim;
+    [SerializeField] private Image fillImage;
 
     private GameObject c4;
     public float targetTime = 10.0f;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
     public int medAttempts = 2;
     public bool readyToHeal = true;
     public int healCooldown = 10;
+    bool isCooldown = false;
 
     [SerializeField] private float sightRange = 10f;
     [SerializeField] private LayerMask whatIsEnemy;
@@ -74,6 +76,11 @@ public class PlayerController : MonoBehaviour
     {
         if(readyToHeal && medAttempts > 0)
         {
+            if (!isCooldown)
+            {
+                isCooldown = true;
+                fillImage.fillAmount = 1;
+            }
             readyToHeal = false;
             medAttempts--;
             TakeDamage(-30);
@@ -105,9 +112,17 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        Debug.Log("walking +" + walking);
-        Debug.Log("shooting +" + shooting);
+        Debug.Log("Cooling down" + isCooldown);
 
+        if (isCooldown)
+        {
+            fillImage.fillAmount -= 0.1f * Time.deltaTime;
+            if (fillImage.fillAmount <= 0)
+            {
+                fillImage.fillAmount = 0;
+                isCooldown = false;
+            }
+        }
         float threshold = 2.5f;
         if (_rigidBody.velocity.magnitude < threshold * Time.deltaTime)
         {

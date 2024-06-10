@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class ThrowingTutorial : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class ThrowingTutorial : MonoBehaviour
     public Transform attackPoint;
     public GameObject smokeGrenade;
     public GameObject arrow;
+    public Image[] fillImages;
 
     [Header("Settings")]
     public int totalThrows;
@@ -20,17 +22,47 @@ public class ThrowingTutorial : MonoBehaviour
     public float throwForce;
     public float throwUpwardForce;
 
+    bool isCooldown = false;
+    bool isCooldownArrow = false;
+
     bool readyToThrow;
 
     private void Start()
     {
         readyToThrow = true;
     }
+    private void Update()
+    {
+        if (isCooldown)
+        {
+            fillImages[0].fillAmount -= 1 / throwCooldown * Time.deltaTime;
 
+            if (fillImages[0].fillAmount <= 0)
+            {
+                fillImages[0].fillAmount = 0;
+                isCooldown = false;
+            }
+        }
+        if (isCooldownArrow)
+        {
+            fillImages[1].fillAmount -= 1 / throwCooldown * Time.deltaTime;
+
+            if (fillImages[1].fillAmount <= 0)
+            {
+                fillImages[1].fillAmount = 0;
+                isCooldownArrow = false;
+            }
+        }
+    }
     public void ThrowSmoke()
     {
         if (readyToThrow && totalThrows > 0)
         {
+            if(!isCooldown)
+            {
+                isCooldown = true;
+                fillImages[0].fillAmount = 1;
+            }
             readyToThrow = false;
 
             // instantiate object to throw
@@ -65,9 +97,13 @@ public class ThrowingTutorial : MonoBehaviour
         if (readyToThrow && totalThrows > 0)
         {
             readyToThrow = false;
-
-        // instantiate object to throw
-        GameObject projectile = Instantiate(arrow, attackPoint.position, Quaternion.Euler(0f, gameObject.transform.rotation.eulerAngles.y, 0f));
+            if (!isCooldownArrow)
+            {
+                isCooldownArrow = true;
+                fillImages[1].fillAmount = 1;
+            }
+            // instantiate object to throw
+            GameObject projectile = Instantiate(arrow, attackPoint.position, Quaternion.Euler(0f, gameObject.transform.rotation.eulerAngles.y, 0f));
         projectile.transform.Rotate(0, 85, 0);
 
         // get rigidbody component
