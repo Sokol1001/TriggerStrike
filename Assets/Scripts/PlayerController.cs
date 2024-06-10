@@ -139,8 +139,10 @@ public class PlayerController : MonoBehaviour
         if (closestEnemy != null)
         {
             shooting = true;
+            Quaternion offsetRotation = Quaternion.Euler(0f, 66f, 0f); // 66 degrees on the Y-axis
+            Vector3 targetDir = closestEnemy.transform.position - transform.position;
 
-            transform.LookAt(closestEnemy.transform);
+            transform.LookAt(closestEnemy.transform); //Quaternion.LookRotation(targetDir) * offsetRotation;
         }
         else
             shooting = false;
@@ -226,7 +228,7 @@ public class PlayerController : MonoBehaviour
     }
     private void DestroyPlayer()
     {
-        gameObject.GetComponent<CapsuleCollider>().height = 2.2f;
+        gameObject.GetComponent<CapsuleCollider>().height = 3.5f;
         gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, 2.25f, 0);
         gameObject.GetComponent<PlayerController>().enabled = false;
     }
