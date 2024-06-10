@@ -105,7 +105,10 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        float threshold = 0.3f;
+        Debug.Log("walking +" + walking);
+        Debug.Log("shooting +" + shooting);
+
+        float threshold = 2.5f;
         if (_rigidBody.velocity.magnitude < threshold * Time.deltaTime)
         {
             walking = false;

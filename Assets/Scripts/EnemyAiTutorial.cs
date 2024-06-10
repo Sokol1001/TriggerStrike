@@ -9,6 +9,7 @@ public class EnemyAiTutorial : MonoBehaviour
     public Transform player;
 
     public LayerMask whatIsGround, whatIsPlayer;
+    public Animator animator; // Add animator reference
 
     public float health;
     public Slider healthSlider;
@@ -70,6 +71,9 @@ public class EnemyAiTutorial : MonoBehaviour
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
+        // Update animation state based on behavior
+        UpdateAnimationState();
+
         if (!playerInSightRange && !playerInAttackRange) Patroling();
         if (playerInSightRange && !playerInAttackRange) ChasePlayer();
         if (playerInAttackRange && playerInSightRange) AttackPlayer();
@@ -80,6 +84,13 @@ public class EnemyAiTutorial : MonoBehaviour
         {
             TakeDamage(25);
         }
+    }
+    private void UpdateAnimationState()
+    {
+        animator.SetBool("IsIdle", !playerInSightRange && !playerInAttackRange && !walkPointSet); // Not patrolling
+        animator.SetBool("IsRunning", playerInSightRange && !playerInAttackRange && health > 0); // Patrolling 
+        animator.SetBool("IsAiming", playerInAttackRange && playerInSightRange); // Attacking
+        animator.SetBool("IsDying", health <= 0); // Assuming health <= 0 triggers death animation
     }
 
     private void Patroling()
@@ -142,11 +153,14 @@ public class EnemyAiTutorial : MonoBehaviour
         health -= damage;
         healthSlider.value -= damage;
 
-        if (health <= 0) Invoke(nameof(DestroyEnemy), 0.5f);
+        if (health <= 0) Invoke(nameof(DestroyEnemy), 0.1f);
     }
     private void DestroyEnemy()
     {
-        Destroy(gameObject);
+        gameObject.GetComponent<CapsuleCollider>().height = 2.2f;
+        gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, 2.25f, 0);
+        agent.enabled = false;
+        gameObject.GetComponent<EnemyAiTutorial>().enabled = false;
     }
 
     private void OnDrawGizmosSelected()

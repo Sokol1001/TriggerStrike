@@ -50,6 +50,11 @@ public class TeamateAI : MonoBehaviour
 
         return closestEnemy;
     }
+    public void DeactivateTeamate()
+    {
+        enabled = false;
+        agent.enabled = false;
+    }
     private void Update()
     {
         if (closestEnemy != null)
@@ -57,6 +62,12 @@ public class TeamateAI : MonoBehaviour
         //Check for sight and attack range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsEnemy);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsEnemy);
+        // Check for players and deactivate if none found
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, sightRange, whatIsEnemy);
+        if (hitColliders.Length == 0)
+        {
+            DeactivateTeamate();
+        }
         // Update animation state based on behavior
         UpdateAnimationState();
 
