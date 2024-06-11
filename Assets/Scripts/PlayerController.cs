@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _moveSpeed;
     [SerializeField] private Animator anim;
     [SerializeField] private Image fillImage;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip shootSFX;
+    [SerializeField] private AudioClip plantingSFX;
+    [SerializeField] private AudioClip explosionSFX;
 
     private GameObject c4;
     public float targetTime = 10.0f;
@@ -112,8 +116,6 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        Debug.Log("Cooling down" + isCooldown);
-
         if (isCooldown)
         {
             fillImage.fillAmount -= 0.1f * Time.deltaTime;
@@ -177,6 +179,7 @@ public class PlayerController : MonoBehaviour
     void timerEnded()
     {
         c4.GetComponentInChildren<ParticleSystem>().Play();
+        audioSource.PlayOneShot(explosionSFX);
         redTeamWinsText.enabled = true;
         planted = false;
     }
@@ -205,6 +208,7 @@ public class PlayerController : MonoBehaviour
                     GameObject bomb = Instantiate(c4, plantingPosition, Quaternion.identity);
 
                     //Play planting animation/sound effect
+                    audioSource.PlayOneShot(plantingSFX);
                     planting = true;
                     _joystick.enabled = false;
                     yield return new WaitForSeconds(5f);
@@ -259,7 +263,8 @@ public class PlayerController : MonoBehaviour
     {
         if (canShoot)
         {
-            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, gameObject.transform.rotation);
+            audioSource.PlayOneShot(shootSFX);
             Destroy(projectile, 4f);
             // Get the player's forward direction
             Vector3 forwardDirection = transform.forward;

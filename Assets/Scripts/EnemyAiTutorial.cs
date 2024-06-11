@@ -7,6 +7,8 @@ public class EnemyAiTutorial : MonoBehaviour
     public NavMeshAgent agent;
 
     public Transform player;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip shootSFX;
 
     public LayerMask whatIsGround, whatIsPlayer;
     public Animator animator; // Add animator reference
@@ -134,7 +136,9 @@ public class EnemyAiTutorial : MonoBehaviour
         if (!alreadyAttacked)
         {
             ///Attack code here
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+            Rigidbody rb = Instantiate(projectile, transform.position, gameObject.transform.rotation).GetComponent<Rigidbody>();
+            audioSource.PlayOneShot(shootSFX);
+
             rb.AddForce(transform.forward * 90f, ForceMode.Impulse);
             rb.AddForce(transform.up * 1f, ForceMode.Impulse);
             ///End of attack code

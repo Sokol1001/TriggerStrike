@@ -10,6 +10,8 @@ public class TeamateAI : MonoBehaviour
 
     public LayerMask whatIsGround, whatIsEnemy;
     public Animator animator; // Add animator reference
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip shootSFX;
 
     public float health;
     public Slider healthSlider;
@@ -57,13 +59,20 @@ public class TeamateAI : MonoBehaviour
     }
     private void Update()
     {
-        if (closestEnemy != null)
+        // Check for players and deactivate if none found
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, sightRange, whatIsEnemy);
+        if (hitColliders.Length == 0)
+        {
+            DeactivateTeamate();
+        }
+        else
+        {
             closestEnemy = FindClosestEnemy().transform;
+        }
         //Check for sight and attack range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsEnemy);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsEnemy);
-        // Check for players and deactivate if none found
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, sightRange, whatIsEnemy);
+
         if (hitColliders.Length == 0)
         {
             DeactivateTeamate();
@@ -72,7 +81,7 @@ public class TeamateAI : MonoBehaviour
         UpdateAnimationState();
 
         if(health >= 0)
-        if (!playerInSightRange && !playerInAttackRange) Patroling();
+        //if (!playerInSightRange && !playerInAttackRange) Patroling();
         if (playerInSightRange && !playerInAttackRange) ChaseEnemy();
         if (playerInAttackRange && playerInSightRange) AttackEnemy();
     }
@@ -90,19 +99,19 @@ public class TeamateAI : MonoBehaviour
         animator.SetBool("IsAiming", playerInAttackRange && playerInSightRange); // Attacking
         animator.SetBool("IsDying", health <= 0); // Assuming health <= 0 triggers death animation
     }
-    private void Patroling()
-    {
-        if (!walkPointSet) SearchWalkPoint();
+    //private void Patroling()
+    //{
+    //    if (!walkPointSet) SearchWalkPoint();
 
-        if (walkPointSet)
-            agent.SetDestination(walkPoint);
+    //    if (walkPointSet)
+    //        agent.SetDestination(walkPoint);
 
-        Vector3 distanceToWalkPoint = transform.position - walkPoint;
+    //    Vector3 distanceToWalkPoint = transform.position - walkPoint;
 
-        //Walkpoint reached
-        if (distanceToWalkPoint.magnitude < 1f)
-            walkPointSet = false;
-    }
+    //    //Walkpoint reached
+    //    if (distanceToWalkPoint.magnitude < 1f)
+    //        walkPointSet = false;
+    //}
     private void SearchWalkPoint()
     {
         //Calculate random point in range
@@ -135,7 +144,9 @@ public class TeamateAI : MonoBehaviour
         if (!alreadyAttacked)
         {
             ///Attack code here
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+            Rigidbody rb = Instantiate(projectile, transform.position, gameObject.transform.rotation).GetComponent<Rigidbody>();
+            audioSource.PlayOneShot(shootSFX);
+
             rb.AddForce(transform.forward * 45f, ForceMode.Impulse);
             rb.AddForce(transform.up * 1f, ForceMode.Impulse);
             ///End of attack code
